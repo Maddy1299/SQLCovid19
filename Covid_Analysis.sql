@@ -50,10 +50,33 @@ group by location
 order by location
 
 --No of days between first occurnace and first Death
-select location,MAX(date) as 'First Death Occurance',MIN(date) as 'First Case Occurance'
+create table #TFDO(
+location nvarchar(255),
+date datetime)
+insert into #TFDO
+select location,MAX(date) as 'First Death Occurance'
 from CovidP1..CovidDeaths where total_deaths IS NULL and continent is not null
 group by location
+
+select * from #TFDO
 order by location
+
+create table #TFCO(
+location nvarchar(255),
+date datetime)
+insert into #TFCO
+select location,MIN(date) as 'First Case Occurance'
+from CovidP1..CovidDeaths
+where continent is not null
+group by location
+
+select * from #TFCO
+order by location
+
+select do.location,do.date as 'First Death Occurance',co.date 'First Case Occurance' ,DATEDIFF(day,co.date,do.date) as 'Days till first Death'
+from #TFDO do
+inner join #TFCO co on do.location=co.location
+order by [Days till first Death]desc
 
 
 
